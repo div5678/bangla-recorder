@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#0d0b09"/>
+<title>বাংলা রেকর্ডার</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Playfair+Display:wght@700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ══════════════════════════════════
+   ROOT TOKENS
+══════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0d0b09;--surf:#161210;--surf2:#1f1a14;--surf3:#2a231b;
+  --bdr:#383026;--bdr2:#50443a;
+  --terra:#c4622d;--terra-l:#e07843;--terra-d:#7a3a1c;
+  --gold:#d4a853;--gold-d:#9a7830;
+  --cream:#ede3d0;--cream-d:#a89880;
+  --txt:#ede3d0;--txt2:#9a8a78;--txt3:#584e44;
+  --red:#e05050;--green:#5aba82;--blue:#5a8eba;
+  --r:12px;--rl:20px;
+  --shadow:0 4px 28px rgba(0,0,0,.55);
+  --glow:0 0 32px rgba(196,98,45,.2);
+  /* safe areas for notched phones */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  /* bottom nav height */
+  --nav-h: 60px;
+}
+html{scroll-behavior:smooth;height:100%}
+body{
+  background:var(--bg);color:var(--txt);
+  font-family:'Hind Siliguri',sans-serif;font-size:15px;line-height:1.6;
+  min-height:100vh;overflow-x:hidden;
+  padding-bottom:calc(var(--nav-h) + var(--sab));
+}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");opacity:.45}
+
+/* bilingual helper */
+.bi{display:flex;flex-direction:column;gap:1px}
+.bi .bn{font-weight:500;color:var(--txt)}
+.bi .en{font-size:10px;color:var(--txt3);font-style:italic}
+
+/* ══════════════════════════════════
+   TOP HEADER
+══════════════════════════════════ */
+.hdr{
+  position:sticky;top:0;z-index:200;
+  background:rgba(13,11,9,.96);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--bdr);
+  padding: calc(var(--sat) + 8px) 16px 8px;
+}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:960px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:36px;height:36px;border-radius:10px;background:var(--terra);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 16px rgba(196,98,45,.4);flex-shrink:0}
+.logo-text .bn{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--cream);line-height:1.1}
+.logo-text .en{font-size:9px;color:var(--terra-l);letter-spacing:1.5px;text-transform:uppercase}
+.hdr-actions{display:flex;align-items:center;gap:6px}
+
+/* icon buttons in header */
+.icon-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:40px;height:40px;border-radius:10px;
+  border:1px solid var(--bdr2);background:var(--surf2);
+  cursor:pointer;font-size:18px;transition:all .18s;
+  -webkit-user-select:none;user-select:none;
+}
+.icon-btn:active{background:var(--surf3);transform:scale(.93)}
+.icon-btn.active-cam{border-color:rgba(90,186,130,.4);background:rgba(90,186,130,.1)}
+
+/* ══════════════════════════════════
+   BOTTOM NAV (mobile-style)
+══════════════════════════════════ */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:rgba(13,11,9,.97);backdrop-filter:blur(20px);
+  border-top:1px solid var(--bdr);
+  display:flex;
+  padding-bottom:var(--sab);
+  height:calc(var(--nav-h) + var(--sab));
+}
+.bnav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;padding:8px 0;
+  border:none;background:none;font-family:'Hind Siliguri',sans-serif;
+  transition:all .18s;
+  -webkit-user-select:none;user-select:none;
+}
+.bnav-item:active{background:var(--surf2)}
+.bnav-icon{font-size:22px;transition:transform .18s}
+.bnav-item.active .bnav-icon{transform:scale(1.15)}
+.bnav-label{font-size:11px;color:var(--txt3)}
+.bnav-label .bn{font-size:12px;color:var(--txt3);font-weight:500}
+.bnav-label .en{font-size:9px;color:var(--txt3);opacity:.7}
+.bnav-item.active .bnav-label .bn{color:var(--terra-l)}
+
+/* ══════════════════════════════════
+   VIEWS
+══════════════════════════════════ */
+.view{display:none;position:relative;z-index:1}
+.view.active{display:block}
+
+/* ══════════════════════════════════
+   RECORD VIEW LAYOUT
+══════════════════════════════════ */
+.rec-layout{max-width:960px;margin:0 auto;padding:14px 14px 24px}
+
+/* ── VIDEO SECTION ── */
+.video-wrap{
+  position:relative;width:100%;
+  background:var(--surf3);border-radius:var(--rl);
+  overflow:hidden;border:1px solid var(--bdr);
+  /* aspect ratio adapts: 16:9 on desktop, 9:16 portrait on phone */
+  aspect-ratio:16/9;
+}
+@media(max-width:600px){
+  .video-wrap{aspect-ratio:9/16;max-height:55vh}
+}
+#preview{width:100%;height:100%;object-fit:cover;display:none}
+.preview-mirror{transform:scaleX(-1)}/* front camera */
+.cam-off{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+}
+.cam-icon{font-size:52px;opacity:.18}
+.cam-off .bn{font-size:15px;color:var(--txt2);opacity:.7;text-align:center;padding:0 24px}
+.cam-off .en{font-size:11px;color:var(--txt3);opacity:.5;text-align:center}
+.rec-badge{
+  position:absolute;top:12px;left:12px;
+  background:rgba(224,80,80,.92);color:#fff;
+  font-size:12px;font-weight:700;letter-spacing:1.5px;
+  padding:4px 11px;border-radius:5px;
+  display:none;align-items:center;gap:6px;
+  font-family:'JetBrains Mono',monospace;
+}
+.rec-dot{width:7px;height:7px;border-radius:50%;background:#fff;animation:blink 1s infinite}
+.timer-disp{
+  position:absolute;top:12px;right:12px;
+  background:rgba(0,0,0,.68);color:#fff;
+  font-family:'JetBrains Mono',monospace;font-size:14px;
+  padding:4px 11px;border-radius:6px;
+}
+/* camera flip button overlay */
+.cam-flip-btn{
+  position:absolute;bottom:12px;right:12px;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);
+  display:none;align-items:center;justify-content:center;
+  font-size:22px;cursor:pointer;
+  -webkit-user-select:none;user-select:none;
+  transition:transform .2s;
+}
+.cam-flip-btn:active{transform:scale(.9) rotate(180deg)}
+.cam-flip-btn.visible{display:flex}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+
+/* ── RECORD CONTROLS BAR ── */
+.rec-controls{
+  display:flex;align-items:center;justify-content:center;
+  gap:14px;padding:16px 0 4px;
+}
+/* big circular record button */
+.rec-btn-wrap{display:flex;flex-direction:column;align-items:center;gap:5px}
+.rec-circle{
+  width:72px;height:72px;border-radius:50%;
+  border:3px solid var(--terra);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;
+  -webkit-user-select:none;user-select:none;
+  position:relative;
+}
+.rec-circle::before{
+  content:'';position:absolute;inset:5px;border-radius:50%;
+  background:var(--terra);transition:all .2s;
+}
+.rec-circle:active{transform:scale(.93)}
+.rec-circle.recording{border-color:var(--red)}
+.rec-circle.recording::before{background:var(--red);border-radius:6px;inset:18px;animation:rpulse 1.5s infinite}
+@keyframes rpulse{0%,100%{box-shadow:0 0 0 0 rgba(224,80,80,.4)}50%{box-shadow:0 0 0 10px rgba(224,80,80,0)}}
+.rec-circle-label{font-size:11px;color:var(--txt3);text-align:center}
+.rec-circle-label .en{font-size:9px;color:var(--txt3);font-style:italic}
+
+/* side control buttons */
+.ctrl-btn{
+  width:52px;height:52px;border-radius:50%;
+  border:1px solid var(--bdr2);background:var(--surf2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  cursor:pointer;transition:all .18s;
+  -webkit-user-select:none;user-select:none;font-size:13px;
+}
+.ctrl-btn:active:not(:disabled){background:var(--surf3);transform:scale(.93)}
+.ctrl-btn:disabled{opacity:.35;cursor:not-allowed}
+.ctrl-icon{font-size:22px;line-height:1}
+.ctrl-label{font-size:9px;color:var(--txt3);text-align:center;line-height:1.2}
+
+/* ── WAVEFORM ── */
+.waveform{
+  height:40px;background:var(--surf3);border:1px solid var(--bdr);
+  border-radius:var(--r);display:flex;align-items:center;gap:2px;
+  padding:0 8px;overflow:hidden;margin:10px 0;
+}
+.wbar{flex:1;background:var(--terra);border-radius:2px;min-height:3px;opacity:.65;transition:height .05s}
+
+/* ── PANELS (cards) ── */
+.panel{
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--rl);padding:18px;
+  display:flex;flex-direction:column;gap:14px;
+  margin-bottom:14px;
+}
+.sec-title{font-family:'Playfair Display',serif;font-size:15px;color:var(--cream)}
+.sec-title small{display:block;font-size:10px;font-style:italic;font-family:'Hind Siliguri',sans-serif;color:var(--txt3);font-weight:400;margin-top:1px}
+
+/* ── SAVE DESTINATION ── */
+.dest-row{display:flex;gap:8px}
+.dest-chip{
+  flex:1;display:flex;align-items:center;gap:8px;
+  padding:10px 12px;border-radius:10px;border:1px solid var(--bdr);
+  background:var(--surf2);cursor:pointer;transition:all .18s;
+  -webkit-user-select:none;user-select:none;
+}
+.dest-chip input{accent-color:var(--terra);width:16px;height:16px;flex-shrink:0;cursor:pointer}
+.dest-chip .bi .bn{font-size:12px;color:var(--txt2)}
+.dest-chip .bi .en{font-size:9px;color:var(--txt3)}
+.dest-chip.chosen{border-color:rgba(196,98,45,.45);background:rgba(196,98,45,.07)}
+.dest-chip.chosen .bi .bn{color:var(--terra-l)}
+
+/* ── FORM FIELDS ── */
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:400px){.form-row{grid-template-columns:1fr}}
+.flabel .bn{font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--txt2)}
+.flabel .en{font-size:9px;color:var(--txt3);font-style:italic}
+input[type=text],input[type=date]{
+  background:var(--surf3);border:1px solid var(--bdr);
+  border-radius:10px;color:var(--txt);
+  font-family:'Hind Siliguri',sans-serif;font-size:15px;
+  padding:11px 13px;width:100%;outline:none;
+  transition:border-color .18s,box-shadow .18s;
+  /* prevents iOS zoom */
+  -webkit-appearance:none;appearance:none;
+}
+input:focus{border-color:var(--terra);box-shadow:0 0 0 3px rgba(196,98,45,.18)}
+input::placeholder{color:var(--txt3)}
+
+/* ── TRANSCRIPT ── */
+.t-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.tstatus{display:flex;align-items:center;gap:5px;flex-shrink:0;margin-top:2px}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--txt3)}
+.sdot.on{background:var(--green);animation:blink 1s infinite}
+.sdot.err{background:var(--red)}
+.tstatus .bi .bn{font-size:11px;color:var(--txt2)}
+.tstatus .bi .en{font-size:9px;color:var(--txt3)}
+.tbox{
+  background:var(--surf3);border:1px solid var(--bdr);
+  border-radius:var(--r);padding:13px;
+  min-height:110px;max-height:160px;overflow-y:auto;
+  font-size:16px;line-height:1.85;position:relative;
+}
+.tph{color:var(--txt3);font-size:13px;font-style:italic}
+.tph .en{display:block;font-size:11px;opacity:.65;margin-top:3px}
+.ttext{color:var(--txt);white-space:pre-wrap}
+.interim{color:var(--terra-l);font-style:italic;opacity:.75}
+.tactions{display:flex;gap:8px}
+.tbtn{
+  flex:1;background:none;border:1px solid var(--bdr);
+  color:var(--txt2);font-family:'Hind Siliguri',sans-serif;
+  font-size:13px;padding:9px 10px;border-radius:8px;
+  cursor:pointer;transition:all .15s;text-align:center;
+  -webkit-user-select:none;user-select:none;
+}
+.tbtn:active{background:var(--surf2)}
+.toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer;padding:4px 0}
+.toggle-row input{accent-color:var(--terra);width:17px;height:17px;cursor:pointer;flex-shrink:0}
+.toggle-row .bi .bn{font-size:13px}
+
+/* ── SAVE BUTTON ── */
+.btn-save{
+  background:linear-gradient(135deg,var(--gold-d),var(--gold));
+  border:none;border-radius:var(--rl);
+  width:100%;padding:15px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-family:'Hind Siliguri',sans-serif;font-size:15px;font-weight:600;
+  color:#3a2a10;cursor:pointer;
+  box-shadow:0 4px 18px rgba(212,168,83,.25);
+  transition:all .18s;
+  -webkit-user-select:none;user-select:none;
+}
+.btn-save:active:not(:disabled){transform:scale(.97)}
+.btn-save:disabled{opacity:.35;cursor:not-allowed}
+.btn-save .bi .bn{font-size:14px;color:#3a2a10}
+.btn-save .bi .en{font-size:10px;color:#6a4a20}
+.save-msg{text-align:center;font-size:13px;min-height:18px}
+
+/* ── FOLDER STATUS ── */
+.folder-status{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 14px;background:var(--surf2);
+  border:1px solid var(--bdr);border-radius:var(--r);
+}
+.folder-status.ok{border-color:rgba(90,186,130,.35);background:rgba(90,186,130,.06)}
+.folder-status .fs-icon{font-size:22px;flex-shrink:0}
+.folder-status .fs-bn{font-size:13px;color:var(--txt2)}
+.folder-status.ok .fs-bn{color:var(--green)}
+.folder-status .fs-en{font-size:10px;color:var(--txt3);font-style:italic}
+
+/* saved files box */
+.saved-files{display:none;flex-direction:column;gap:6px;padding:12px 14px;background:rgba(90,186,130,.06);border:1px solid rgba(90,186,130,.25);border-radius:var(--r)}
+.sf-title{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--green);margin-bottom:2px}
+.sf-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--cream-d);padding:3px 0}
+.sf-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:11px}
+.sf-size{font-size:11px;color:var(--txt3);white-space:nowrap}
+
+/* playback */
+.playback-area{display:none;flex-direction:column;gap:8px}
+.playback-area video{width:100%;border-radius:var(--r);background:var(--surf3)}
+
+/* notice strip */
+.notice{background:var(--surf2);border:1px solid rgba(212,168,83,.3);border-radius:var(--r);padding:12px 14px;margin-bottom:14px}
+.notice .bn{font-size:12px;color:var(--gold);font-weight:600;margin-bottom:4px}
+.notice .en{font-size:11px;color:var(--txt3);line-height:1.6}
+.notice code{background:var(--surf3);border:1px solid var(--bdr);padding:1px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--terra-l)}
+
+/* ══════════════════════════════════
+   LIBRARY VIEW
+══════════════════════════════════ */
+.lib-wrap{max-width:960px;margin:0 auto;padding:14px 14px 24px}
+.lib-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:10px;flex-wrap:wrap}
+.lib-title .bn{font-family:'Playfair Display',serif;font-size:22px;color:var(--cream)}
+.lib-title .en{font-size:11px;color:var(--txt3);font-style:italic;margin-top:2px}
+.lib-actions{display:flex;gap:6px}
+.lib-btn{display:flex;align-items:center;gap:5px;padding:8px 12px;border-radius:8px;border:1px solid var(--bdr2);background:var(--surf2);color:var(--txt2);font-family:'Hind Siliguri',sans-serif;font-size:12px;cursor:pointer;transition:all .15s;-webkit-user-select:none;user-select:none}
+.lib-btn:active{background:var(--surf3)}
+.lib-grid{display:flex;flex-direction:column;gap:12px}
+@media(min-width:640px){.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}}
+.lib-empty{text-align:center;padding:50px 20px}
+.lib-empty .bn{font-size:16px;color:var(--txt2)}
+.lib-empty .en{font-size:12px;color:var(--txt3);margin-top:5px}
+
+/* ── CARD ── */
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:16px;cursor:pointer;transition:all .22s;display:flex;flex-direction:column;gap:10px;-webkit-user-select:none;user-select:none}
+.card:active{border-color:var(--terra-d);background:var(--surf2)}
+@media(hover:hover){.card:hover{border-color:var(--terra-d);box-shadow:var(--glow);transform:translateY(-2px)}}
+.card-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.card-title .bn{font-family:'Playfair Display',serif;font-size:15px;color:var(--cream)}
+.card-title .en{font-size:10px;color:var(--txt3);font-style:italic}
+.card-date{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--txt2);background:var(--surf3);padding:3px 8px;border-radius:4px;white-space:nowrap}
+.card-meta{display:flex;gap:7px;flex-wrap:wrap;font-size:12px;color:var(--txt2)}
+.chip{padding:2px 8px;border-radius:20px;font-size:11px;border:1px solid}
+.chip.pc{color:var(--terra-l);border-color:rgba(196,98,45,.3);background:rgba(196,98,45,.07)}
+.chip.dl{color:var(--gold);border-color:rgba(212,168,83,.3);background:rgba(212,168,83,.07)}
+.chip.mob{color:var(--blue);border-color:rgba(90,142,186,.3);background:rgba(90,142,186,.07)}
+.card-excerpt{font-size:13px;color:var(--cream-d);line-height:1.65;display:-webkit-box;line-clamp:3;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;background:var(--surf3);padding:9px 11px;border-radius:8px;border-left:2.5px solid var(--terra-d)}
+.card-actions{display:flex;justify-content:flex-end;gap:6px}
+.dbtn{background:none;border:1px solid var(--bdr);color:var(--txt2);font-size:12px;padding:7px 12px;border-radius:8px;cursor:pointer;font-family:'Hind Siliguri',sans-serif;transition:all .15s;-webkit-user-select:none;user-select:none}
+.dbtn:active{border-color:var(--red);color:var(--red)}
+
+/* ══════════════════════════════════
+   MODAL
+══════════════════════════════════ */
+.modal-bg{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);align-items:flex-end;justify-content:center;padding:0}
+@media(min-width:600px){.modal-bg{align-items:center;padding:24px}}
+.modal-bg.open{display:flex}
+.modal{
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--rl) var(--rl) 0 0;
+  width:100%;max-height:90vh;overflow-y:auto;
+  padding:20px 18px calc(20px + var(--sab));
+  position:relative;box-shadow:var(--shadow);
+  animation:sheetUp .28s ease;
+}
+@media(min-width:600px){.modal{border-radius:var(--rl);max-width:740px;padding:28px;animation:slideUp .28s ease}}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-handle{width:40px;height:4px;border-radius:2px;background:var(--bdr2);margin:0 auto 16px}
+@media(min-width:600px){.modal-handle{display:none}}
+.modal-close{position:absolute;top:14px;right:14px;background:var(--surf3);border:1px solid var(--bdr);color:var(--txt2);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;-webkit-user-select:none;user-select:none}
+.modal-close:active{background:var(--red);border-color:var(--red);color:#fff}
+.modal-title .bn{font-family:'Playfair Display',serif;font-size:20px;color:var(--cream)}
+.modal-title .en{font-size:11px;color:var(--txt3);font-style:italic;margin-bottom:12px}
+.modal-meta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.modal-meta-item .bn{font-size:13px;color:var(--txt2)}
+.modal-meta-item .en{font-size:10px;color:var(--txt3);font-style:italic}
+.modal video,.modal audio{width:100%;border-radius:var(--r);margin-bottom:12px;background:var(--surf3)}
+.modal-t-label{margin-bottom:8px}
+.modal-t-label .bn{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--txt2)}
+.modal-t-label .en{font-size:10px;color:var(--txt3);font-style:italic}
+.modal-transcript{background:var(--surf3);border:1px solid var(--bdr);border-left:3px solid var(--terra);border-radius:var(--r);padding:14px;font-size:16px;line-height:1.9;color:var(--txt);white-space:pre-wrap;max-height:200px;overflow-y:auto;margin-bottom:14px}
+.modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.m-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:10px;border:1px solid var(--bdr2);background:var(--surf2);color:var(--txt);font-family:'Hind Siliguri',sans-serif;font-size:13px;cursor:pointer;transition:all .15s;text-decoration:none;-webkit-user-select:none;user-select:none}
+.m-btn:active{background:var(--surf3)}
+.m-btn .bi .bn{font-size:12px;color:var(--txt)}
+.m-btn .bi .en{font-size:9px;color:var(--txt3)}
+.modal-files-section{margin-bottom:14px;padding:12px;background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--r)}
+.mf-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);margin-bottom:8px}
+.mf-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--bdr);font-size:13px}
+.mf-row:last-child{border-bottom:none}
+.mf-name{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cream-d);flex:1;word-break:break-all}
+.mf-size{font-size:11px;color:var(--txt3);white-space:nowrap}
+
+/* ══════════════════════════════════
+   TOAST
+══════════════════════════════════ */
+.toast-wrap{position:fixed;bottom:calc(var(--nav-h) + var(--sab) + 10px);left:50%;transform:translateX(-50%);z-index:500;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:calc(100% - 28px);max-width:380px}
+.toast{background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--r);padding:11px 16px;animation:slideUp .3s ease;width:100%;box-shadow:var(--shadow);pointer-events:none}
+.toast .t-bn{font-size:13px;color:var(--txt)}
+.toast .t-en{font-size:11px;color:var(--txt3);font-style:italic;margin-top:1px}
+.toast.ok{border-left:3px solid var(--green)}
+.toast.err{border-left:3px solid var(--red)}
+.toast.info{border-left:3px solid var(--blue)}
+
+/* ══════════════════════════════════
+   SCROLLBAR
+══════════════════════════════════ */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--surf3)}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     TOP HEADER
+══════════════════════════════════ -->
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="logo">
+      <div class="logo-mark">🎙️</div>
+      <div class="logo-text">
+        <div class="bn">বাংলা রেকর্ডার</div>
+        <div class="en">Bangla Voice Recorder</div>
+      </div>
+    </div>
+    <div class="hdr-actions">
+      <!-- Folder picker (desktop) -->
+      <button class="icon-btn" id="btnPickFolder" title="Choose save folder">📁</button>
+      <!-- Camera flip (mobile) -->
+      <button class="icon-btn" id="btnFlipHeader" title="Flip camera" style="display:none">🔄</button>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════
+     RECORD VIEW
+══════════════════════════════════ -->
+<main class="view active" id="view-record">
+  <div class="rec-layout">
+
+    <!-- Notice -->
+    <div class="notice" id="mainNotice">
+      <div class="bn">💡 কীভাবে ব্যবহার করবেন · How to use</div>
+      <div class="en" id="noticeText">
+        <strong>Desktop:</strong> Click 📁 to choose a save folder, then record &amp; save directly to it.<br/>
+        <strong>Mobile/Tablet:</strong> Tap Camera → Record → Stop → Save. Files download to your device via the Share sheet or Downloads.
+      </div>
+    </div>
+
+    <!-- Video preview -->
+    <div class="video-wrap" id="videoWrap">
+      <video id="preview" autoplay muted playsinline></video>
+      <div class="cam-off" id="camOff">
+        <div class="cam-icon">📷</div>
+        <div class="bn">ক্যামেরা চালু করুন</div>
+        <div class="en">Tap the camera button below</div>
+      </div>
+      <div class="rec-badge" id="recBadge"><span class="rec-dot"></span>REC</div>
+      <div class="timer-disp" id="timerDisp">00:00</div>
+      <!-- Flip camera overlay button -->
+      <div class="cam-flip-btn" id="camFlipBtn" onclick="flipCamera()">🔄</div>
+    </div>
+
+    <!-- Record Controls -->
+    <div class="rec-controls">
+      <!-- Camera toggle -->
+      <button class="ctrl-btn" id="btnCam">
+        <span class="ctrl-icon">📷</span>
+        <span class="ctrl-label">ক্যামেরা<br/><span style="font-size:8px;font-style:italic">Camera</span></span>
+      </button>
+
+      <!-- Big record button -->
+      <div class="rec-btn-wrap">
+        <div class="rec-circle" id="recCircle" onclick="toggleRecord()"></div>
+        <div class="rec-circle-label">
+          <div class="bn" id="recLabel">রেকর্ড</div>
+          <div class="en" id="recLabelEn">Start</div>
+        </div>
+      </div>
+
+      <!-- Stop button -->
+      <button class="ctrl-btn" id="btnStop" disabled>
+        <span class="ctrl-icon">⏹</span>
+        <span class="ctrl-label">থামান<br/><span style="font-size:8px;font-style:italic">Stop</span></span>
+      </button>
+    </div>
+
+    <!-- Waveform -->
+    <div class="waveform" id="waveform"></div>
+
+    <!-- Details Panel -->
+    <div class="panel">
+      <div class="sec-title">রেকর্ডিং তথ্য <small>Recording Details</small></div>
+
+      <div class="form-group">
+        <label class="flabel" for="recName">
+          <span class="bn">রেকর্ডিংয়ের নাম</span>
+          <span class="en">Recording name (used as filename)</span>
+        </label>
+        <input type="text" id="recName" placeholder="যেমন: সাক্ষাৎকার_০১ · Interview_01"/>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="flabel" for="pName">
+            <span class="bn">ব্যক্তির নাম</span>
+            <span class="en">Person's name</span>
+          </label>
+          <input type="text" id="pName" placeholder="নাম · Name"/>
+        </div>
+        <div class="form-group">
+          <label class="flabel" for="recDate">
+            <span class="bn">তারিখ</span>
+            <span class="en">Date</span>
+          </label>
+          <input type="date" id="recDate"/>
+        </div>
+      </div>
+
+      <!-- Save destination -->
+      <div>
+        <div class="sec-title" style="margin-bottom:10px">সংরক্ষণ পদ্ধতি <small>How to save</small></div>
+        <div class="dest-row">
+          <label class="dest-chip" id="chipFolder">
+            <input type="radio" name="saveMethod" value="folder" id="saveFolder"/>
+            <div class="bi">
+              <span class="bn">📁 ফোল্ডারে</span>
+              <span class="en">To PC folder</span>
+            </div>
+          </label>
+          <label class="dest-chip chosen" id="chipDownload">
+            <input type="radio" name="saveMethod" value="download" id="saveDownload" checked/>
+            <div class="bi">
+              <span class="bn" id="dlChipBn">⬇ ডাউনলোড</span>
+              <span class="en" id="dlChipEn">Download to device</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Folder status -->
+      <div class="folder-status" id="folderStatus">
+        <span class="fs-icon">📂</span>
+        <div>
+          <div class="fs-bn" id="folderStatusBn">ফোল্ডার নির্বাচিত হয়নি</div>
+          <div class="fs-en" id="folderStatusEn">No folder — files will download instead</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Transcript Panel -->
+    <div class="panel">
+      <div class="t-head">
+        <div class="sec-title">বাংলা ট্রান্সক্রিপ্ট <small>Bangla Speech-to-Text</small></div>
+        <div class="tstatus">
+          <span class="sdot" id="sdot"></span>
+          <div class="bi" style="gap:0">
+            <span class="bn" id="stBn">প্রস্তুত</span>
+            <span class="en" id="stEn">Ready</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tbox" id="tbox">
+        <div class="tph" id="tph">
+          রেকর্ড শুরু হলে এখানে বাংলা ট্রান্সক্রিপশন দেখাবে…
+          <span class="en">Bangla speech-to-text appears here while recording…</span>
+        </div>
+        <span class="ttext" id="ttext"></span><span class="interim" id="interim"></span>
+      </div>
+
+      <div class="tactions">
+        <button class="tbtn" id="btnClear">
+          🗑 <span>মুছুন</span>
+          <span style="font-size:10px;font-style:italic;color:var(--txt3)"> · Clear</span>
+        </button>
+        <button class="tbtn" id="btnCopy">
+          📋 <span>কপি</span>
+          <span style="font-size:10px;font-style:italic;color:var(--txt3)"> · Copy</span>
+        </button>
+      </div>
+
+      <label class="toggle-row">
+        <input type="checkbox" id="autoSTT" checked/>
+        <div class="bi">
+          <span class="bn">স্বয়ংক্রিয় ট্রান্সক্রিপশন</span>
+          <span class="en">Auto Bangla STT while recording</span>
+        </div>
+      </label>
+    </div>
+
+    <!-- Playback -->
+    <div class="playback-area panel" id="playbackArea">
+      <div class="sec-title">পূর্বরূপ দেখুন <small>Review before saving</small></div>
+      <video id="playbackVid" controls playsinline></video>
+    </div>
+
+    <!-- Saved files box -->
+    <div class="saved-files" id="savedFilesBox" style="margin-bottom:14px">
+      <div class="sf-title">✅ সংরক্ষিত ফাইলসমূহ · Saved Files</div>
+      <div id="savedFilesList"></div>
+    </div>
+
+    <!-- Save Button -->
+    <button class="btn-save" id="btnSave" disabled>
+      <span>💾</span>
+      <div class="bi">
+        <span class="bn">সংরক্ষণ করুন</span>
+        <span class="en">Save video, audio &amp; transcript</span>
+      </div>
+    </button>
+    <div class="save-msg" id="saveMsg" style="margin-top:8px"></div>
+
+  </div>
+</main>
+
+<!-- ══════════════════════════════════
+     LIBRARY VIEW
+══════════════════════════════════ -->
+<main class="view" id="view-library">
+  <div class="lib-wrap">
+    <div class="lib-hdr">
+      <div class="lib-title">
+        <div class="bn">লাইব্রেরি</div>
+        <div class="en">Recording Library</div>
+      </div>
+      <div class="lib-actions">
+        <button class="lib-btn" id="btnClearLib" style="color:var(--red)">🗑 সব মুছুন</button>
+        <button class="lib-btn" id="btnRefresh">🔄 রিফ্রেশ</button>
+      </div>
+    </div>
+    <div id="libGrid" class="lib-grid">
+      <div class="lib-empty">
+        <div class="bn">কোনো রেকর্ডিং নেই।</div>
+        <div class="en">No recordings yet.</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" id="mClose">✕</button>
+    <div id="mContent"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ══════════════════════════════════
+     BOTTOM NAV
+══════════════════════════════════ -->
+<nav class="bottom-nav">
+  <button class="bnav-item active" data-view="record">
+    <span class="bnav-icon">🎙️</span>
+    <div class="bnav-label"><div class="bn">রেকর্ড</div><div class="en">Record</div></div>
+  </button>
+  <button class="bnav-item" data-view="library">
+    <span class="bnav-icon">📚</span>
+    <div class="bnav-label"><div class="bn">লাইব্রেরি</div><div class="en">Library</div></div>
+  </button>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════ -->
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+
+/* ── DOM refs ── */
+const preview      = $('preview'),      camOff       = $('camOff');
+const recBadge     = $('recBadge'),     timerDisp    = $('timerDisp');
+const recCircle    = $('recCircle'),    btnStop      = $('btnStop');
+const btnCam       = $('btnCam'),       btnSave      = $('btnSave');
+const recName      = $('recName'),      pName        = $('pName');
+const recDate      = $('recDate'),      sdot         = $('sdot');
+const stBn         = $('stBn'),         stEn         = $('stEn');
+const tbox         = $('tbox'),         tph          = $('tph');
+const ttext        = $('ttext'),        interim      = $('interim');
+const waveform     = $('waveform'),     playbackArea = $('playbackArea');
+const playbackVid  = $('playbackVid'), saveMsg      = $('saveMsg');
+const libGrid      = $('libGrid'),      modalBg      = $('modalBg');
+const mContent     = $('mContent'),     folderStatus = $('folderStatus');
+const folderStatusBn=$('folderStatusBn'),folderStatusEn=$('folderStatusEn');
+const savedFilesBox=$('savedFilesBox'), savedFilesList=$('savedFilesList');
+const camFlipBtn   = $('camFlipBtn'),   btnFlipHeader=$('btnFlipHeader');
+const btnPickFolder= $('btnPickFolder');
+
+/* ── State ── */
+const S = {
+  stream: null, mr: null, ar: null,
+  vChunks: [], aChunks: [],
+  recording: false, camOn: false,
+  startTime: null, ticker: null,
+  recognition: null, transcript: '',
+  vBlob: null, aBlob: null,
+  analyser: null, raf: null,
+  dirHandle: null,
+  facingMode: 'user',   // front camera by default
+  isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
+};
+
+/* ── Init ── */
+recDate.value = new Date().toISOString().split('T')[0];
+buildWave();
+detectPlatform();
+
+function detectPlatform() {
+  if (S.isMobile) {
+    // On mobile: show flip button, hide FSA folder picker in header
+    btnPickFolder.style.display = 'none';
+    btnFlipHeader.style.display = 'flex';
+    // Update download chip label
+    $('dlChipBn').textContent = '📲 ডাউনলোড';
+    $('dlChipEn').textContent = 'Save to phone';
+    // Update notice
+    $('noticeText').innerHTML =
+      '<strong>মোবাইল:</strong> ক্যামেরা চালু করুন → রেকর্ড → থামান → সেভ। ফাইল ডাউনলোড ফোল্ডারে যাবে বা Share শিটে শেয়ার করুন।<br/>' +
+      '<strong>Mobile:</strong> Start camera → Record → Stop → Save. Files go to Downloads or Share.';
+    // hide folder chip on mobile (FSA not available)
+    if (!('showDirectoryPicker' in window)) {
+      $('chipFolder').style.display = 'none';
+      $('saveDownload').checked = true;
+    }
+  }
+}
+
+/* ── Navigation ── */
+document.querySelectorAll('.bnav-item').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.bnav-item').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    $(`view-${b.dataset.view}`).classList.add('active');
+    if (b.dataset.view === 'library') renderLib();
+  });
+});
+
+/* dest chip interactivity */
+document.querySelectorAll('input[name="saveMethod"]').forEach(r => {
+  r.addEventListener('change', () => {
+    $('chipFolder').classList.toggle('chosen', $('saveFolder').checked);
+    $('chipDownload').classList.toggle('chosen', $('saveDownload').checked);
+  });
+});
+
+/* ══════════════════════════════════
+   FOLDER PICKER (desktop)
+══════════════════════════════════ */
+btnPickFolder.addEventListener('click', pickFolder);
+async function pickFolder() {
+  if (!('showDirectoryPicker' in window)) {
+    toast('সমর্থিত নয়', 'Use Chrome or Edge for folder access', 'err'); return;
+  }
+  try {
+    S.dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+    const name = S.dirHandle.name;
+    btnPickFolder.textContent = '📁';
+    btnPickFolder.classList.add('active-cam');
+    folderStatus.classList.add('ok');
+    folderStatusBn.textContent = '✓ ' + name;
+    folderStatusEn.textContent = 'Files will save to: ' + name;
+    $('saveFolder').checked = true;
+    $('chipFolder').classList.add('chosen');
+    $('chipDownload').classList.remove('chosen');
+    toast('ফোল্ডার নির্বাচিত!', 'Save folder: ' + name, 'ok');
+  } catch (e) {
+    if (e.name !== 'AbortError') toast('ফোল্ডার ব্যর্থ', e.message, 'err');
+  }
+}
+
+async function writeToPCFolder(blob, filename) {
+  if (!S.dirHandle) return false;
+  try {
+    const fh = await S.dirHandle.getFileHandle(filename, { create: true });
+    const w = await fh.createWritable();
+    await w.write(blob); await w.close(); return true;
+  } catch { return false; }
+}
+
+/* ══════════════════════════════════
+   MOBILE SHARE / DOWNLOAD
+══════════════════════════════════ */
+async function saveFileToDevice(blob, filename, mimeType) {
+  // Try Web Share API with files (Android Chrome 86+, iOS Safari 15+)
+  if (S.isMobile && navigator.canShare) {
+    try {
+      const file = new File([blob], filename, { type: mimeType });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: filename });
+        return { method: 'share' };
+      }
+    } catch (e) {
+      if (e.name === 'AbortError') return { method: 'cancelled' };
+      // Fall through to download
+    }
+  }
+  // Fallback: trigger download
+  triggerDownload(blob, filename);
+  return { method: 'download' };
+}
+
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+/* ══════════════════════════════════
+   WAVEFORM
+══════════════════════════════════ */
+function buildWave() {
+  waveform.innerHTML = '';
+  for (let i = 0; i < 48; i++) {
+    const d = document.createElement('div');
+    d.className = 'wbar'; d.style.height = '3px'; waveform.appendChild(d);
+  }
+}
+function setupViz() {
+  try {
+    const ctx = new AudioContext();
+    S.analyser = ctx.createAnalyser(); S.analyser.fftSize = 128;
+    ctx.createMediaStreamSource(S.stream).connect(S.analyser);
+    const bars = waveform.querySelectorAll('.wbar');
+    const data = new Uint8Array(S.analyser.frequencyBinCount);
+    (function draw() {
+      S.raf = requestAnimationFrame(draw);
+      S.analyser.getByteFrequencyData(data);
+      bars.forEach((b, i) => {
+        const v = (data[i] || 0) / 255;
+        b.style.height = Math.max(3, v * 36) + 'px';
+        b.style.opacity = .4 + v * .6;
+      });
+    })();
+  } catch (_) {}
+}
+
+/* ══════════════════════════════════
+   CAMERA
+══════════════════════════════════ */
+btnCam.addEventListener('click', async () => {
+  if (S.camOn) { stopCam(); return; }
+  await startCam();
+});
+btnFlipHeader.addEventListener('click', flipCamera);
+
+async function startCam() {
+  try {
+    const constraints = {
+      video: {
+        facingMode: S.facingMode,
+        width: { ideal: S.isMobile ? 1280 : 1920 },
+        height: { ideal: S.isMobile ? 720 : 1080 }
+      },
+      audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 }
+    };
+    S.stream = await navigator.mediaDevices.getUserMedia(constraints);
+    preview.srcObject = S.stream;
+    // Mirror front camera
+    preview.className = S.facingMode === 'user' ? 'preview-mirror' : '';
+    preview.style.display = 'block';
+    camOff.style.display = 'none';
+    S.camOn = true;
+    btnCam.querySelector('.ctrl-icon').textContent = '📴';
+    btnCam.querySelector('.ctrl-label').innerHTML = 'বন্ধ<br/><span style="font-size:8px;font-style:italic">Off</span>';
+    recCircle.style.pointerEvents = 'auto'; recCircle.style.opacity = '1';
+    // Show flip button on mobile
+    if (S.isMobile) camFlipBtn.classList.add('visible');
+    setupViz();
+  } catch (e) {
+    toast('ক্যামেরা ব্যর্থ', 'Camera access failed: ' + e.message, 'err');
+  }
+}
+
+function stopCam() {
+  if (S.stream) S.stream.getTracks().forEach(t => t.stop());
+  S.stream = null; preview.srcObject = null; preview.style.display = 'none';
+  camOff.style.display = 'flex'; S.camOn = false;
+  camFlipBtn.classList.remove('visible');
+  cancelAnimationFrame(S.raf);
+  btnCam.querySelector('.ctrl-icon').textContent = '📷';
+  btnCam.querySelector('.ctrl-label').innerHTML = 'ক্যামেরা<br/><span style="font-size:8px;font-style:italic">Camera</span>';
+}
+
+async function flipCamera() {
+  S.facingMode = S.facingMode === 'user' ? 'environment' : 'user';
+  if (S.camOn) {
+    const wasRecording = S.recording;
+    if (wasRecording) { /* keep recording — can't swap mid-record on most devices */ return; }
+    stopCam(); await startCam();
+  }
+  toast(S.facingMode === 'user' ? 'সামনের ক্যামেরা' : 'পেছনের ক্যামেরা',
+        S.facingMode === 'user' ? 'Front camera' : 'Rear camera', 'info');
+}
+
+/* ══════════════════════════════════
+   RECORDING
+══════════════════════════════════ */
+function toggleRecord() {
+  if (!S.camOn) { toast('ক্যামেরা চালু করুন', 'Please start the camera first', 'err'); return; }
+  if (S.recording) return; // stop is separate button
+  startRecording();
+}
+
+function startRecording() {
+  S.vChunks = []; S.aChunks = [];
+  const mime = ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm','video/mp4']
+    .find(t => MediaRecorder.isTypeSupported(t)) || 'video/webm';
+
+  S.mr = new MediaRecorder(S.stream, { mimeType: mime });
+  S.mr.ondataavailable = e => { if (e.data.size > 0) S.vChunks.push(e.data); };
+  S.mr.onstop = onRecordingStop; S.mr.start(100);
+
+  const as = new MediaStream(S.stream.getAudioTracks().map(t => t.clone()));
+  S.ar = new MediaRecorder(as, { mimeType: 'audio/webm;codecs=opus' });
+  S.ar.ondataavailable = e => { if (e.data.size > 0) S.aChunks.push(e.data); };
+  S.ar.start(100);
+
+  S.recording = true; S.startTime = Date.now();
+  recBadge.style.display = 'flex';
+  recCircle.classList.add('recording');
+  $('recLabel').textContent = '●'; $('recLabelEn').textContent = 'Rec…';
+  btnStop.disabled = false; btnCam.disabled = true;
+  timerDisp.textContent = '00:00';
+  savedFilesBox.style.display = 'none';
+
+  S.ticker = setInterval(() => {
+    const e = Date.now() - S.startTime;
+    timerDisp.textContent = `${String(Math.floor(e/60000)).padStart(2,'0')}:${String(Math.floor(e%60000/1000)).padStart(2,'0')}`;
+  }, 500);
+
+  if ($('autoSTT').checked) startSTT();
+  toast('রেকর্ডিং শুরু হয়েছে', 'Recording started — tap ⏹ to stop', 'info');
+}
+
+btnStop.addEventListener('click', () => {
+  if (!S.recording) return;
+  S.recording = false; S.mr?.stop(); S.ar?.stop(); stopSTT(); clearInterval(S.ticker);
+  recBadge.style.display = 'none'; recCircle.classList.remove('recording');
+  $('recLabel').textContent = 'রেকর্ড'; $('recLabelEn').textContent = 'Start';
+  btnStop.disabled = true; btnCam.disabled = false;
+});
+
+function onRecordingStop() {
+  S.vBlob = new Blob(S.vChunks, { type: 'video/webm' });
+  S.aBlob = new Blob(S.aChunks, { type: 'audio/webm' });
+  const url = URL.createObjectURL(S.vBlob);
+  playbackVid.src = url; playbackArea.style.display = 'flex';
+  btnSave.disabled = false;
+  // scroll to save on mobile
+  if (S.isMobile) setTimeout(() => btnSave.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+  toast('রেকর্ডিং সম্পন্ন!', 'Done! Review and tap Save below.', 'ok');
+}
+
+/* ══════════════════════════════════
+   BANGLA STT
+══════════════════════════════════ */
+function startSTT() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { setSt('সমর্থিত নয়', 'STT not supported here', 'err'); return; }
+  S.recognition = new SR();
+  Object.assign(S.recognition, { lang: 'bn-BD', continuous: true, interimResults: true, maxAlternatives: 1 });
+  S.recognition.onstart  = () => setSt('শুনছে…', 'Listening…', 'on');
+  S.recognition.onresult = e => {
+    let tmp = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) { S.transcript += e.results[i][0].transcript + ' '; ttext.textContent = S.transcript; }
+      else tmp += e.results[i][0].transcript;
+    }
+    interim.textContent = tmp;
+    tph.style.display = S.transcript ? 'none' : 'block';
+    tbox.scrollTop = tbox.scrollHeight;
+  };
+  S.recognition.onerror = e => { if (e.error !== 'no-speech') setSt('ত্রুটি', e.error, 'err'); };
+  S.recognition.onend   = () => { if (S.recording) try { S.recognition.start(); } catch (_) {} else setSt('সম্পন্ন', 'Done', ''); };
+  try { S.recognition.start(); } catch (_) {}
+}
+function stopSTT() {
+  if (S.recognition) { S.recognition.onend = null; S.recognition.stop(); S.recognition = null; }
+  interim.textContent = ''; setSt('সম্পন্ন', 'Stopped', '');
+}
+function setSt(bn, en, cls) { stBn.textContent = bn; stEn.textContent = en; sdot.className = 'sdot' + (cls ? ' ' + cls : ''); }
+
+$('btnClear').addEventListener('click', () => { S.transcript=''; ttext.textContent=''; interim.textContent=''; tph.style.display='block'; });
+$('btnCopy').addEventListener('click', () => {
+  if (!S.transcript) return;
+  navigator.clipboard.writeText(S.transcript).then(() => toast('কপি!', 'Copied', 'ok'))
+    .catch(() => { /* fallback: select text */ });
+});
+
+/* ══════════════════════════════════
+   SAVE
+══════════════════════════════════ */
+btnSave.addEventListener('click', async () => {
+  if (!S.vBlob) return;
+  const rawName  = recName.value.trim() || 'recording';
+  const safeName = rawName.replace(/\s+/g,'_').replace(/[<>:"/\\|?*]/g,'').slice(0,80);
+  const stamp    = recDate.value || new Date().toISOString().split('T')[0];
+  const prefix   = `${safeName}_${stamp}`;
+  const duration = timerDisp.textContent;
+  const useFolder = $('saveFolder').checked && !!S.dirHandle;
+
+  btnSave.disabled = true;
+  saveMsg.style.color = 'var(--gold)'; saveMsg.textContent = '⏳ সংরক্ষণ হচ্ছে… · Saving…';
+
+  const savedItems = [];
+
+  async function handleFile(blob, filename, mimeType, label) {
+    let method = 'download', pc = false;
+    if (useFolder) {
+      pc = await writeToPCFolder(blob, filename);
+      if (!pc) { method = await saveFileToDevice(blob, filename, mimeType); method = method.method; }
+      else method = 'folder';
+    } else {
+      const r = await saveFileToDevice(blob, filename, mimeType);
+      method = r.method;
+    }
+    savedItems.push({ name: filename, size: fmtSize(blob.size), label, method });
+  }
+
+  await handleFile(S.vBlob, `${prefix}_video.webm`, 'video/webm', '📹 ভিডিও · Video');
+  await handleFile(S.aBlob, `${prefix}_audio.webm`, 'audio/webm', '🎵 অডিও · Audio');
+
+  if (S.transcript) {
+    const txtContent = `রেকর্ডিং: ${rawName}\nব্যক্তি: ${pName.value}\nতারিখ: ${stamp}\nসময়কাল: ${duration}\n\nট্রান্সক্রিপ্ট:\n${S.transcript}`;
+    const txtBlob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+    await handleFile(txtBlob, `${prefix}_transcript.txt`, 'text/plain', '📄 ট্রান্সক্রিপ্ট · Transcript');
+  }
+
+  // Metadata
+  const metaBlob = new Blob([JSON.stringify({ recordingName: rawName, personName: pName.value, recordingDate: stamp, duration, transcript: S.transcript, savedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' });
+  if (useFolder) {
+    await writeToPCFolder(metaBlob, `${prefix}_info.json`);
+    savedItems.push({ name: `${prefix}_info.json`, size: fmtSize(metaBlob.size), label: '🗒 মেটাডেটা · Info', method: 'folder' });
+  }
+
+  // Show saved files
+  savedFilesList.innerHTML = savedItems.map(f => `
+    <div class="sf-item">
+      <span>${f.label}</span>
+      <span class="sf-name">${esc(f.name)}</span>
+      <span class="sf-size">${f.size}</span>
+      <span style="margin-left:4px">${f.method === 'folder' ? '✅' : f.method === 'share' ? '📤' : '⬇'}</span>
+    </div>`).join('');
+  savedFilesBox.style.display = 'flex';
+
+  // Save to library
+  const rec = {
+    id: genId(), recordingName: rawName, personName: pName.value.trim(),
+    recordingDate: stamp, transcript: S.transcript, duration,
+    savedFolder: useFolder ? S.dirHandle.name : null,
+    isMobile: S.isMobile,
+    files: savedItems, createdAt: new Date().toISOString()
+  };
+  const all = loadAll(); all.unshift(rec); saveAll(all);
+
+  saveMsg.style.color = 'var(--green)';
+  saveMsg.textContent = useFolder ? `✅ "${S.dirHandle.name}" ফোল্ডারে সংরক্ষিত · Saved to folder` : `✅ সংরক্ষিত হয়েছে · Saved!`;
+  toast('সংরক্ষণ সফল!', useFolder ? 'Saved to: ' + S.dirHandle.name : 'Files saved/downloaded successfully', 'ok');
+
+  setTimeout(() => {
+    S.vBlob = S.aBlob = null; S.transcript = ''; ttext.textContent = ''; tph.style.display = 'block';
+    playbackArea.style.display = 'none'; recName.value = ''; pName.value = '';
+    recDate.value = new Date().toISOString().split('T')[0];
+    timerDisp.textContent = '00:00'; saveMsg.textContent = ''; btnSave.disabled = true;
+  }, 6000);
+});
+
+/* ══════════════════════════════════
+   LOCAL STORAGE
+══════════════════════════════════ */
+const LS_KEY = 'bangla_recorder_v4';
+function loadAll() { try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch { return []; } }
+function saveAll(arr) { try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch (_) {} }
+function genId() { return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function fmtSize(b) { if (b<1024) return b+'B'; if (b<1048576) return (b/1024).toFixed(1)+'KB'; return (b/1048576).toFixed(1)+'MB'; }
+
+/* ══════════════════════════════════
+   LIBRARY
+══════════════════════════════════ */
+$('btnRefresh').addEventListener('click', renderLib);
+$('btnClearLib').addEventListener('click', () => {
+  if (confirm('সব এন্ট্রি মুছবেন?\nClear all library entries?')) { saveAll([]); renderLib(); toast('লাইব্রেরি পরিষ্কার','Cleared','ok'); }
+});
+
+function renderLib() {
+  const all = loadAll();
+  if (!all.length) { libGrid.innerHTML = `<div class="lib-empty"><div class="bn">কোনো রেকর্ডিং নেই।</div><div class="en">No recordings yet.</div></div>`; return; }
+  libGrid.innerHTML = all.map(rec => `
+    <div class="card" onclick="openRec('${esc(rec.id)}')">
+      <div class="card-hdr">
+        <div class="card-title"><div class="bn">${esc(rec.recordingName)}</div><div class="en">Recording</div></div>
+        <div class="card-date">${rec.recordingDate||'—'}</div>
+      </div>
+      <div class="card-meta">
+        ${rec.personName?`<span>👤 ${esc(rec.personName)}</span>`:''}
+        <span>⏱ ${rec.duration||'—'}</span>
+        ${rec.savedFolder?`<span class="chip pc">📁 ${esc(rec.savedFolder)}</span>`:rec.isMobile?'<span class="chip mob">📲 মোবাইল</span>':'<span class="chip dl">⬇ ডাউনলোড</span>'}
+      </div>
+      ${rec.transcript?`<div class="card-excerpt">${esc(rec.transcript.slice(0,180))}${rec.transcript.length>180?'…':''}</div>`:''}
+      <div class="card-actions">
+        <button class="dbtn" onclick="event.stopPropagation();delRec('${esc(rec.id)}')">🗑 মুছুন</button>
+      </div>
+    </div>`).join('');
+}
+
+function openRec(id) {
+  const rec = loadAll().find(r => r.id === id); if (!rec) return;
+  modalBg.classList.add('open');
+  const fs = rec.files?.length ? `
+    <div class="modal-files-section">
+      <div class="mf-title">💾 সংরক্ষিত ফাইলসমূহ · Saved Files</div>
+      ${rec.savedFolder?`<div style="margin-bottom:8px;font-size:12px">📁 <strong style="color:var(--cream)">${esc(rec.savedFolder)}</strong></div>`:''}
+      ${rec.files.map(f=>`<div class="mf-row"><span style="font-size:13px">${f.label?.split('·')[0]||''}</span><span class="mf-name">${esc(f.name)}</span><span class="mf-size">${f.size}</span><span style="margin-left:4px">${f.method==='folder'?'✅':f.method==='share'?'📤':'⬇'}</span></div>`).join('')}
+    </div>` : '';
+  mContent.innerHTML = `
+    <div class="modal-title"><div class="bn">${esc(rec.recordingName)}</div><div class="en">Recording</div></div>
+    <div class="modal-meta">
+      ${rec.personName?`<div class="modal-meta-item"><div class="bn">👤 ${esc(rec.personName)}</div><div class="en">Person</div></div>`:''}
+      <div class="modal-meta-item"><div class="bn">📅 ${rec.recordingDate||'—'}</div><div class="en">Date</div></div>
+      <div class="modal-meta-item"><div class="bn">⏱ ${rec.duration||'—'}</div><div class="en">Duration</div></div>
+    </div>
+    ${fs}
+    ${rec.transcript?`<div class="modal-t-label"><div class="bn">বাংলা ট্রান্সক্রিপ্ট</div><div class="en">Transcript</div></div><div class="modal-transcript">${esc(rec.transcript)}</div>`:''}
+    <div class="modal-actions">
+      ${rec.transcript?`<button class="m-btn" onclick="dlTxt('${encodeURIComponent(rec.transcript)}','${esc(rec.recordingName)}')"><span>⬇</span><div class="bi"><span class="bn">ট্রান্সক্রিপ্ট</span><span class="en">Download .txt</span></div></button>`:''}
+      <button class="m-btn" style="margin-left:auto;color:var(--red);border-color:rgba(224,80,80,.3)" onclick="delRec('${esc(rec.id)}',true)"><span>🗑</span><div class="bi"><span class="bn">মুছুন</span><span class="en">Delete entry</span></div></button>
+    </div>`;
+}
+
+$('mClose').addEventListener('click', () => modalBg.classList.remove('open'));
+modalBg.addEventListener('click', e => { if (e.target === modalBg) modalBg.classList.remove('open'); });
+
+function delRec(id, fromModal=false) {
+  if (!confirm('মুছবেন?\nDelete this entry?')) return;
+  saveAll(loadAll().filter(r=>r.id!==id));
+  if (fromModal) modalBg.classList.remove('open');
+  renderLib(); toast('মুছে দেওয়া হয়েছে','Deleted','ok');
+}
+function dlTxt(enc, name) {
+  const b=new Blob([decodeURIComponent(enc)],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name+'_transcript.txt'; a.click();
+}
+
+/* ══════════════════════════════════
+   TOAST
+══════════════════════════════════ */
+function toast(bn, en, type='') {
+  const t=document.createElement('div'); t.className='toast'+(type?' '+type:'');
+  t.innerHTML=`<div class="t-bn">${bn}</div><div class="t-en">${en}</div>`;
+  $('toastWrap').appendChild(t); setTimeout(()=>t.remove(), 4500);
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+window.openRec=openRec; window.delRec=delRec; window.dlTxt=dlTxt; window.flipCamera=flipCamera;
+</script>
+</body>
+</html>
