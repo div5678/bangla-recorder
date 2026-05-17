@@ -1,0 +1,7 @@
+node_modules/
+uploads/audio/
+uploads/video/
+uploads/transcripts/
+uploads/recordings.json
+.env
+*.log

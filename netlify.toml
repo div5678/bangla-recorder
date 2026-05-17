@@ -1,0 +1,9 @@
+[build]
+  # Directory to publish
+  publish = "public"
+  # No build command needed since it's a static site
+  command = ""
+
+[dev]
+  framework = "#static"
+  publish = "public"
